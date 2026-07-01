@@ -1,0 +1,6 @@
+[submodule "capsched"]
+	path = capsched
+	url = https://github.com/minto-dane/capsched.git
+[submodule "linux-patches"]
+	path = linux-patches
+	url = https://github.com/minto-dane/capsched-linux.git
