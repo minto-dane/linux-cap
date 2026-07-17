@@ -1,8 +1,7 @@
 /build/
-/linux/
+/linux
 /linux-upstream-base/
 /tools/
 /local-host-tools/
 *.swp
 *~
-
