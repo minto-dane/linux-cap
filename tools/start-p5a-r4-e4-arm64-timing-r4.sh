@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-NAME=p5a-r4-e4-arm64-timing-r4
-RUN_ID=20260721T-p5a-r4-e4-arm64-timing-r4
+NAME=${NAME:-p5a-r4-e4-arm64-timing-r4}
+RUN_ID=${RUN_ID:-20260721T-p5a-r4-e4-arm64-timing-r4}
 JOB_DIR="$ROOT/build/long-jobs/$NAME"
 PROBE="$ROOT/tools/probe-$NAME.sh"
 WRAPPER="$ROOT/tools/run-$NAME-in-machine.sh"
@@ -17,23 +17,37 @@ SOURCE_CLOSURE_RUNNER="$ROOT/capsched/capsched-models/validation/run-sched-exec-
 SOURCE_CLOSURE_TEST="$ROOT/capsched/capsched-models/validation/test-sched-exec-lease-p5a-r4-e4-source-e3-evidence-closure.sh"
 R2_FAILURE_CLOSURE_RUNNER="$ROOT/capsched/capsched-models/validation/run-sched-exec-lease-p5a-r4-e4-arm64-timing-failure-closure.sh"
 R3_STORAGE_CLOSURE_RUNNER="$ROOT/capsched/capsched-models/validation/run-sched-exec-lease-p5a-r4-e4-arm64-timing-r3-storage-failure-closure.sh"
+R4_KUNIT_CLOSURE_RUNNER="$ROOT/capsched/capsched-models/validation/run-sched-exec-lease-p5a-r4-e4-arm64-timing-r4-kunit-failure-closure.sh"
+R4_KUNIT_CLOSURE_TEST="$ROOT/capsched/capsched-models/validation/test-sched-exec-lease-p5a-r4-e4-arm64-timing-r4-kunit-failure-closure.sh"
 SOURCE_CLOSURE_ROOT="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-source-e3-evidence-closure"
-SOURCE_CLOSURE_R1="$SOURCE_CLOSURE_ROOT/20260720T-p5a-r4-e4-source-e3-final-closure-r1"
-SOURCE_CLOSURE_R2="$SOURCE_CLOSURE_ROOT/20260720T-p5a-r4-e4-source-e3-final-closure-r2"
+SOURCE_CLOSURE_R1=${SOURCE_CLOSURE_R1:-"$SOURCE_CLOSURE_ROOT/20260720T-p5a-r4-e4-source-e3-final-closure-r1"}
+SOURCE_CLOSURE_R2=${SOURCE_CLOSURE_R2:-"$SOURCE_CLOSURE_ROOT/20260720T-p5a-r4-e4-source-e3-final-closure-r2"}
 R2_FAILURE_CLOSURE_ROOT="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-timing-failure-closure"
 R2_FAILURE_CLOSURE_R1="$R2_FAILURE_CLOSURE_ROOT/20260721T-p5a-r4-e4-arm64-timing-r2-failure-closure-r1"
 R2_FAILURE_CLOSURE_R2="$R2_FAILURE_CLOSURE_ROOT/20260721T-p5a-r4-e4-arm64-timing-r2-failure-closure-r2"
 R3_STORAGE_CLOSURE_ROOT="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-timing-r3-storage-failure-closure"
 R3_STORAGE_CLOSURE_R1="$R3_STORAGE_CLOSURE_ROOT/20260721T-p5a-r4-e4-arm64-timing-r3-storage-failure-closure-r1"
 R3_STORAGE_CLOSURE_R2="$R3_STORAGE_CLOSURE_ROOT/20260721T-p5a-r4-e4-arm64-timing-r3-storage-failure-closure-r2"
+R4_KUNIT_CLOSURE_ROOT="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-timing-r4-kunit-failure-closure"
+R4_KUNIT_CLOSURE_R1="$R4_KUNIT_CLOSURE_ROOT/20260721T-p5a-r4-e4-arm64-timing-r4-closure-r1"
+R4_KUNIT_CLOSURE_R2="$R4_KUNIT_CLOSURE_ROOT/20260721T-p5a-r4-e4-arm64-timing-r4-closure-r2"
 R3_RESULT="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement/20260721T-p5a-r4-e4-arm64-timing-r3/result.json"
-CONFIG_SMOKE="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement/20260721T-p5a-r4-e4-arm64-timing-config-smoke-r8"
+CONFIG_SMOKE=${CONFIG_SMOKE:-"$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement/20260721T-p5a-r4-e4-arm64-timing-config-smoke-r8"}
 CLEANUP_NEGATIVE="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement/20260721T-p5a-r4-e4-arm64-timing-cleanup-negative-r3"
-CAPACITY_NEGATIVE="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement/20260721T-p5a-r4-e4-host-capacity-negative-r2"
+CAPACITY_NEGATIVE=${CAPACITY_NEGATIVE:-"$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement/20260721T-p5a-r4-e4-host-capacity-negative-r2"}
 OUT_DIR="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement/$RUN_ID"
 BUILD_ROOT="/var/tmp/linux-cap-builds/p5a-r4-e4-arm64-measurement/$RUN_ID"
 WORKTREE="/var/tmp/linux-cap-worktrees/p5a-r4-e4-arm64-measurement/$RUN_ID"
-CAPSCHED_COMMIT=153a27c01256bfa0610bca9592886420666df7ab
+CAPSCHED_COMMIT=${CAPSCHED_COMMIT:-153a27c01256bfa0610bca9592886420666df7ab}
+EXPECTED_RUNNER_SHA=${EXPECTED_RUNNER_SHA:-2fe52b6e9bfbc57ccca43c6e45fc3c18b15e196967822c34743b202480385e69}
+EXPECTED_SOURCE_CLOSURE_RUNNER_SHA=${EXPECTED_SOURCE_CLOSURE_RUNNER_SHA:-271fd7a0d7ab5c62f630e52a3b20c584e9233769760d6b25b586af8182995fba}
+EXPECTED_SOURCE_CLOSURE_TEST_SHA=${EXPECTED_SOURCE_CLOSURE_TEST_SHA:-4e19dc7ddefd41347cc39753ca67da271833e1655ed7340614ba06a17e5a1644}
+EXPECTED_SOURCE_CLOSURE_R1_SHA=${EXPECTED_SOURCE_CLOSURE_R1_SHA:-5e3ff71d2fea01b29e20b23a9bb8e1a8479d70cc847fa49aa3d33295c8040f3f}
+EXPECTED_SOURCE_CLOSURE_R2_SHA=${EXPECTED_SOURCE_CLOSURE_R2_SHA:-bac2aca6649c40fdf21665a0f801be1f0751ef03c437d1b506f78ba77f04f720}
+EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA=${EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA:-767d2f9ab1bfb6e0c918c2ba0b51147ba79f236085e6985097b14e5a8da43d21}
+EXPECTED_CAPACITY_RESULT_SHA=${EXPECTED_CAPACITY_RESULT_SHA:-457fb3a7a5f00c0ea40b53af78d09d9f95021678b7003fbd02ef061ca2043c4c}
+EXPECTED_CANDIDATE_COMMIT=${EXPECTED_CANDIDATE_COMMIT:-5857720dedc49f89d2367442f8fdb1a806ffa1cc}
+MIN_VM_CPUS=${MIN_VM_CPUS:-2}
 HOST_MIN_KIB=33554432
 VM_MIN_KIB=16777216
 WATCH=0
@@ -70,7 +84,8 @@ done
 for script in "$PROBE" "$WRAPPER" "$RUNNER" "$QMP_CONTROL" "$QMP_TEST" \
 	"$PARSER" "$PARSER_TEST" "$SOURCE_CLOSURE_RUNNER" \
 	"$SOURCE_CLOSURE_TEST" "$R2_FAILURE_CLOSURE_RUNNER" \
-	"$R3_STORAGE_CLOSURE_RUNNER"; do
+	"$R3_STORAGE_CLOSURE_RUNNER" "$R4_KUNIT_CLOSURE_RUNNER" \
+	"$R4_KUNIT_CLOSURE_TEST"; do
 	if [ ! -f "$script" ] || [ ! -x "$script" ]; then
 		die "script is not executable: $script"
 	fi
@@ -94,21 +109,23 @@ elif [ "$probe_state" = complete ]; then
 	exit 0
 fi
 
-[ "$(file_sha "$RUNNER")" = 2fe52b6e9bfbc57ccca43c6e45fc3c18b15e196967822c34743b202480385e69 ] || die 'timing runner hash changed'
+[ "$(file_sha "$RUNNER")" = "$EXPECTED_RUNNER_SHA" ] || die 'timing runner hash changed'
 [ "$(file_sha "$QMP_CONTROL")" = e59bc8ad5adb50ddf66652b28a424afd1efbd28a9501e786771d5fb1f8da147e ] || die 'QMP vCPU control hash changed'
 [ "$(file_sha "$QMP_TEST")" = 06c5f057cb4507b53b2b6cb6f55a3c35d150cd561cf282ac3681f41d17650876 ] || die 'QMP vCPU control test hash changed'
 [ "$(file_sha "$PARSER")" = dd0372d385bbc0a84c6faedf67ee3596f4766205a125c44e33b9a91652bc2cd1 ] || die 'timing parser hash changed'
 [ "$(file_sha "$PARSER_TEST")" = b057af2a23d1bbd95eff6bb165eadd81511ca8549ce609a9a5a7411f4a206db0 ] || die 'timing parser test hash changed'
 [ "$(file_sha "$CLASSIFIER")" = 8adcff74f0395f5ec219343c0cb5b1f179efee2292ab853d4fc7e410467dc23a ] || die 'warning classifier hash changed'
-[ "$(file_sha "$SOURCE_CLOSURE_RUNNER")" = 271fd7a0d7ab5c62f630e52a3b20c584e9233769760d6b25b586af8182995fba ] || die 'source closure runner hash changed'
-[ "$(file_sha "$SOURCE_CLOSURE_TEST")" = 4e19dc7ddefd41347cc39753ca67da271833e1655ed7340614ba06a17e5a1644 ] || die 'source closure tests changed'
+[ "$(file_sha "$SOURCE_CLOSURE_RUNNER")" = "$EXPECTED_SOURCE_CLOSURE_RUNNER_SHA" ] || die 'source closure runner hash changed'
+[ "$(file_sha "$SOURCE_CLOSURE_TEST")" = "$EXPECTED_SOURCE_CLOSURE_TEST_SHA" ] || die 'source closure tests changed'
 [ "$(file_sha "$R2_FAILURE_CLOSURE_RUNNER")" = 0610b76838bbd4eeb65625b490ac3bbb93331526b283b86d1969c6a71916881d ] || die 'r2 failure closure runner hash changed'
 [ "$(file_sha "$R3_STORAGE_CLOSURE_RUNNER")" = c425c924ef0f61b46ead7797f61f1ec14ee933825f31d960cc837ebe27cc1578 ] || die 'r3 storage closure runner hash changed'
+[ "$(file_sha "$R4_KUNIT_CLOSURE_RUNNER")" = c5b1fc53052e59f69d965069253dfaceb6529efd2050a03506fa4ee1784b99b0 ] || die 'r4 KUnit closure runner hash changed'
+[ "$(file_sha "$R4_KUNIT_CLOSURE_TEST")" = d9fe7185794806c6ebf4f388a7310e85442dce511d92340f66ccde66334320ef ] || die 'r4 KUnit closure tests changed'
 
-[ "$(file_sha "$SOURCE_CLOSURE_R1/result.json")" = 5e3ff71d2fea01b29e20b23a9bb8e1a8479d70cc847fa49aa3d33295c8040f3f ] || die 'source closure r1 result changed'
-[ "$(file_sha "$SOURCE_CLOSURE_R2/result.json")" = bac2aca6649c40fdf21665a0f801be1f0751ef03c437d1b506f78ba77f04f720 ] || die 'source closure r2 result changed'
+[ "$(file_sha "$SOURCE_CLOSURE_R1/result.json")" = "$EXPECTED_SOURCE_CLOSURE_R1_SHA" ] || die 'source closure r1 result changed'
+[ "$(file_sha "$SOURCE_CLOSURE_R2/result.json")" = "$EXPECTED_SOURCE_CLOSURE_R2_SHA" ] || die 'source closure r2 result changed'
 for closure in "$SOURCE_CLOSURE_R1" "$SOURCE_CLOSURE_R2"; do
-	[ "$(file_sha "$closure/result.normalized.json")" = 767d2f9ab1bfb6e0c918c2ba0b51147ba79f236085e6985097b14e5a8da43d21 ] || die 'source closure normalized decision changed'
+	[ "$(file_sha "$closure/result.normalized.json")" = "$EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA" ] || die 'source closure normalized decision changed'
 done
 cmp "$SOURCE_CLOSURE_R1/result.normalized.json" "$SOURCE_CLOSURE_R2/result.normalized.json" >/dev/null || die 'source closure decisions differ'
 [ -z "$(find "$SOURCE_CLOSURE_R1/inputs" "$SOURCE_CLOSURE_R2/inputs" -type f -perm -222 -print -quit)" ] || die 'source closure inputs became writable'
@@ -131,6 +148,15 @@ done
 cmp "$R3_STORAGE_CLOSURE_R1/result.normalized.json" "$R3_STORAGE_CLOSURE_R2/result.normalized.json" >/dev/null || die 'r3 storage decisions differ'
 [ -z "$(find "$R3_STORAGE_CLOSURE_R1/inputs" "$R3_STORAGE_CLOSURE_R2/inputs" -type f -perm -222 -print -quit)" ] || die 'r3 storage closure inputs became writable'
 
+[ "$(file_sha "$R4_KUNIT_CLOSURE_R1/result.json")" = 2a2da5fe97fe40474dd31581cac95852db881c0e08ebf4bc16fbbb2f87c7e01f ] || die 'r4 KUnit closure r1 changed'
+[ "$(file_sha "$R4_KUNIT_CLOSURE_R2/result.json")" = 600e98938ade8a2195efeded93ec502dda49cd7708413a4364e851ea84c09a67 ] || die 'r4 KUnit closure r2 changed'
+for closure in "$R4_KUNIT_CLOSURE_R1" "$R4_KUNIT_CLOSURE_R2"; do
+	[ "$(file_sha "$closure/result.normalized.json")" = 3e23453369db1c4dcb1f64b1e36357e49e37221c8a152956e581b78e49e003a2 ] || die 'r4 KUnit normalized decision changed'
+	jq -e '.status == "passed_independent_arm64_timing_kunit_failure_closure" and .architecture_measurement_valid == false and .x86_64_measurement_may_start == false' "$closure/result.json" >/dev/null || die 'r4 KUnit closure semantics changed'
+done
+cmp "$R4_KUNIT_CLOSURE_R1/result.normalized.json" "$R4_KUNIT_CLOSURE_R2/result.normalized.json" >/dev/null || die 'r4 KUnit closure decisions differ'
+[ -z "$(find "$R4_KUNIT_CLOSURE_R1/inputs" "$R4_KUNIT_CLOSURE_R2/inputs" -type f -perm -222 -print -quit)" ] || die 'r4 KUnit closure inputs became writable'
+
 [ "$(git -C "$ROOT" branch --show-current)" = codex/r4-e3-source ] || die 'superproject branch changed'
 root_head=$(git -C "$ROOT" rev-parse HEAD)
 [ "$root_head" = "$(git -C "$ROOT" rev-parse refs/remotes/origin/codex/r4-e3-source)" ] || die 'superproject HEAD is not pushed'
@@ -139,20 +165,20 @@ root_head=$(git -C "$ROOT" rev-parse HEAD)
 [ "$(git -C "$ROOT/capsched" rev-parse refs/remotes/origin/codex/r4-e3-source)" = "$CAPSCHED_COMMIT" ] || die 'capsched commit is not pushed'
 [ "$(git -C "$ROOT/linux" rev-parse HEAD)" = 5e1ca3037e34823d1ba0cdd1dc04161fac170280 ] || die 'primary Linux changed'
 [ "$(git -C "$ROOT/linux-patches" rev-parse HEAD)" = 16bb080da472ffabbbafd2698073eca633fb0602 ] || die 'patch queue changed'
-[ "$(git -C "$ROOT/linux" rev-parse refs/heads/codex/p5a-r4-e4-local-quantum-measurement)" = 5857720dedc49f89d2367442f8fdb1a806ffa1cc ] || die 'local E4 candidate moved'
-[ "$(git -C "$ROOT/linux" rev-parse refs/remotes/fork/codex/p5a-r4-e4-local-quantum-measurement)" = 5857720dedc49f89d2367442f8fdb1a806ffa1cc ] || die 'pushed E4 candidate moved'
+[ "$(git -C "$ROOT/linux" rev-parse refs/heads/codex/p5a-r4-e4-local-quantum-measurement)" = "$EXPECTED_CANDIDATE_COMMIT" ] || die 'local E4 candidate moved'
+[ "$(git -C "$ROOT/linux" rev-parse refs/remotes/fork/codex/p5a-r4-e4-local-quantum-measurement)" = "$EXPECTED_CANDIDATE_COMMIT" ] || die 'pushed E4 candidate moved'
 [ -z "$(git -C "$ROOT" status --porcelain --untracked-files=no)" ] || die 'superproject tracked state is dirty'
 [ -z "$(git -C "$ROOT/capsched" status --porcelain)" ] || die 'capsched is dirty'
 [ -z "$(git -C "$ROOT/linux" status --porcelain --untracked-files=no)" ] || die 'primary Linux is dirty'
 [ -z "$(git -C "$ROOT/linux-patches" status --porcelain)" ] || die 'patch queue is dirty'
 
 grep -Fxq '100% exact arm64 timing config smoke passed; builds=0 boots=0 scratch retired' "$CONFIG_SMOKE/progress" || die 'config smoke progress changed'
-[ "$(file_sha "$CONFIG_SMOKE/raw/measurement-runner.sh")" = 2fe52b6e9bfbc57ccca43c6e45fc3c18b15e196967822c34743b202480385e69 ] || die 'config smoke used another runner'
+[ "$(file_sha "$CONFIG_SMOKE/raw/measurement-runner.sh")" = "$EXPECTED_RUNNER_SHA" ] || die 'config smoke used another runner'
 [ "$(file_sha "$CONFIG_SMOKE/raw/qmp-vcpu-control.py")" = e59bc8ad5adb50ddf66652b28a424afd1efbd28a9501e786771d5fb1f8da147e ] || die 'config smoke used another QMP helper'
 grep -Fxq 'CONFIG_NR_CPUS=2' "$CONFIG_SMOKE/raw/arm64.config" || die 'config smoke topology changed'
 [ ! -e "$CONFIG_SMOKE/.failure-seal-reserve" ] || die 'config smoke left its seal reserve'
 jq -e '.status == "harness_failed" and .failure.stage == "worktree" and .run_owned_build_scratch_retired == true and .run_owned_worktree_retired == true' "$CLEANUP_NEGATIVE/result.json" >/dev/null || die 'prior forced cleanup evidence changed'
-[ "$(file_sha "$CAPACITY_NEGATIVE/result.json")" = 457fb3a7a5f00c0ea40b53af78d09d9f95021678b7003fbd02ef061ca2043c4c ] || die 'capacity-negative result changed'
+[ "$(file_sha "$CAPACITY_NEGATIVE/result.json")" = "$EXPECTED_CAPACITY_RESULT_SHA" ] || die 'capacity-negative result changed'
 jq -e '.status == "harness_failed" and .failure.stage == "prerequisite_closure" and (.failure.reason | startswith("host shared storage below 999999999999KiB")) and .run_owned_build_scratch_retired == true and .run_owned_worktree_retired == true and .x86_64_measurement_may_start == false' "$CAPACITY_NEGATIVE/result.json" >/dev/null || die 'capacity-negative semantics changed'
 [ ! -e "$CAPACITY_NEGATIVE/.failure-seal-reserve" ] || die 'capacity-negative left its seal reserve'
 
@@ -162,7 +188,7 @@ fi
 machine_json=$(container machine inspect domainlease-dev)
 [ "$(printf '%s\n' "$machine_json" | jq -r '.[0].status')" = running ] || die 'domainlease-dev is not running'
 vm_cpu_count=$(container machine run -n domainlease-dev nproc)
-[ "$vm_cpu_count" -ge 2 ] || die "domainlease-dev needs at least two allowed CPUs; found $vm_cpu_count"
+[ "$vm_cpu_count" -ge "$MIN_VM_CPUS" ] || die "domainlease-dev needs at least $MIN_VM_CPUS allowed CPUs; found $vm_cpu_count"
 processes=$(container machine run -n domainlease-dev /usr/bin/ps -eo args=)
 if printf '%s\n' "$processes" | grep -Eq '[r]un-p5a-r4-e4-arm64-timing|[r]un-sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement|[q]emu-system-(aarch64|x86_64)|[m]ake -C /var/tmp/linux-cap-worktrees/p5a-r4-e4'; then
 	die 'an R4-E4 timing, QEMU, or build process is already active'
@@ -185,9 +211,10 @@ host_available_kib=$(df -Pk "$ROOT" | awk 'NR==2 {print $4}')
 container machine run -n domainlease-dev --workdir "$ROOT" "$SOURCE_CLOSURE_TEST" > "$JOB_DIR/source-closure-preflight.log"
 container machine run -n domainlease-dev --workdir "$ROOT" "$PARSER_TEST" > "$JOB_DIR/parser-preflight.log"
 container machine run -n domainlease-dev --workdir "$ROOT" "$QMP_TEST" > "$JOB_DIR/qmp-preflight.log"
+container machine run -n domainlease-dev --workdir "$ROOT" "$R4_KUNIT_CLOSURE_TEST" > "$JOB_DIR/r4-kunit-closure-preflight.log"
 
 if [ "$PREFLIGHT_ONLY" = 1 ]; then
-	printf 'preflight passed: pushed commits, exact source/r2/r3 closures, paused-QMP control, parser, smoke, capacity control, trim, CPU, 32GiB host, 16GiB VM, and clean paths are r4 launch-ready\n'
+	printf 'preflight passed: pushed commits, exact source/r2/r3/r4 closures, paused-QMP control, parser, smoke, capacity control, trim, CPU, 32GiB host, 16GiB VM, and clean paths are %s launch-ready\n' "$NAME"
 	exit 0
 fi
 

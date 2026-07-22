@@ -2,11 +2,12 @@
 set -u
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-NAME=p5a-r4-e4-arm64-timing-r4
-RUN_ID=20260721T-p5a-r4-e4-arm64-timing-r4
+NAME=${NAME:-p5a-r4-e4-arm64-timing-r4}
+RUN_ID=${RUN_ID:-20260721T-p5a-r4-e4-arm64-timing-r4}
 JOB_DIR="$ROOT/build/long-jobs/$NAME"
 RUNNER="$ROOT/capsched/capsched-models/validation/run-sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement.sh"
-EXPECTED_RUNNER_SHA=2fe52b6e9bfbc57ccca43c6e45fc3c18b15e196967822c34743b202480385e69
+EXPECTED_RUNNER_SHA=${EXPECTED_RUNNER_SHA:-2fe52b6e9bfbc57ccca43c6e45fc3c18b15e196967822c34743b202480385e69}
+JOBS=${DOMAINLEASE_BUILD_JOBS:-$(nproc)}
 HOST_ENV_FILE="$JOB_DIR/outer-host-environment.txt"
 PROGRESS_FILE="$JOB_DIR/progress"
 BUILD_ROOT="/var/tmp/linux-cap-builds/p5a-r4-e4-arm64-measurement/$RUN_ID"
@@ -51,6 +52,7 @@ esac
 set +e
 env RUN_ID="$RUN_ID" BUILD_ROOT="$BUILD_ROOT" WORKTREE="$WORKTREE" \
 	HOST_ENV_FILE="$HOST_ENV_FILE" PROGRESS_FILE="$PROGRESS_FILE" \
+	JOBS="$JOBS" \
 	"$RUNNER" >> "$JOB_DIR/job.log" 2>&1
 rc=$?
 set -e

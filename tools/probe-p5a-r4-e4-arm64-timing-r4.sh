@@ -2,8 +2,15 @@
 set -u
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-NAME=p5a-r4-e4-arm64-timing-r4
-RUN_ID=20260721T-p5a-r4-e4-arm64-timing-r4
+NAME=${NAME:-p5a-r4-e4-arm64-timing-r4}
+RUN_ID=${RUN_ID:-20260721T-p5a-r4-e4-arm64-timing-r4}
+EXPECTED_CANDIDATE_COMMIT=${EXPECTED_CANDIDATE_COMMIT:-5857720dedc49f89d2367442f8fdb1a806ffa1cc}
+EXPECTED_CANDIDATE_TREE=${EXPECTED_CANDIDATE_TREE:-ee6e329106327a302bf63c78f2ed4fe3ddea7865}
+EXPECTED_COMBINED_RUN=${EXPECTED_COMBINED_RUN:-20260719T-p5a-r4-e4-source-e3-regression-r4}
+EXPECTED_SOURCE_CLOSURE_R1_SHA=${EXPECTED_SOURCE_CLOSURE_R1_SHA:-5e3ff71d2fea01b29e20b23a9bb8e1a8479d70cc847fa49aa3d33295c8040f3f}
+EXPECTED_SOURCE_CLOSURE_R2_SHA=${EXPECTED_SOURCE_CLOSURE_R2_SHA:-bac2aca6649c40fdf21665a0f801be1f0751ef03c437d1b506f78ba77f04f720}
+EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA=${EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA:-767d2f9ab1bfb6e0c918c2ba0b51147ba79f236085e6985097b14e5a8da43d21}
+EXPECTED_RUNNER_SHA=${EXPECTED_RUNNER_SHA:-2fe52b6e9bfbc57ccca43c6e45fc3c18b15e196967822c34743b202480385e69}
 JOB_DIR="$ROOT/build/long-jobs/$NAME"
 OUT_DIR="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement/$RUN_ID"
 RESULT="$OUT_DIR/result.json"
@@ -27,18 +34,26 @@ validate_complete_result()
 		passed_r4_local_quantum_measurement|rejected_r4_local_quantum_measurement) ;;
 		*) return 1 ;;
 	esac
-	jq -e '
+	jq -e \
+	  --arg run_id "$RUN_ID" \
+	  --arg source_commit "$EXPECTED_CANDIDATE_COMMIT" \
+	  --arg source_tree "$EXPECTED_CANDIDATE_TREE" \
+	  --arg combined_run "$EXPECTED_COMBINED_RUN" \
+	  --arg closure_r1 "$EXPECTED_SOURCE_CLOSURE_R1_SHA" \
+	  --arg closure_r2 "$EXPECTED_SOURCE_CLOSURE_R2_SHA" \
+	  --arg closure_normalized "$EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA" \
+	  --arg runner_sha "$EXPECTED_RUNNER_SHA" '
 	  .schema_version == 1 and
 	  .id == "sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement-result-v1" and
-	  .run_id == "20260721T-p5a-r4-e4-arm64-timing-r4" and
+	  .run_id == $run_id and
 	  .architecture == "arm64" and
-	  .source.commit == "5857720dedc49f89d2367442f8fdb1a806ffa1cc" and
-	  .source.tree == "ee6e329106327a302bf63c78f2ed4fe3ddea7865" and
-	  .prerequisites.combined_run == "20260719T-p5a-r4-e4-source-e3-regression-r4" and
-	  .prerequisites.closure_r1_sha256 == "5e3ff71d2fea01b29e20b23a9bb8e1a8479d70cc847fa49aa3d33295c8040f3f" and
-	  .prerequisites.closure_r2_sha256 == "bac2aca6649c40fdf21665a0f801be1f0751ef03c437d1b506f78ba77f04f720" and
-	  .prerequisites.closure_normalized_sha256 == "767d2f9ab1bfb6e0c918c2ba0b51147ba79f236085e6985097b14e5a8da43d21" and
-	  .runner.sha256 == "2fe52b6e9bfbc57ccca43c6e45fc3c18b15e196967822c34743b202480385e69" and
+	  .source.commit == $source_commit and
+	  .source.tree == $source_tree and
+	  .prerequisites.combined_run == $combined_run and
+	  .prerequisites.closure_r1_sha256 == $closure_r1 and
+	  .prerequisites.closure_r2_sha256 == $closure_r2 and
+	  .prerequisites.closure_normalized_sha256 == $closure_normalized and
+	  .runner.sha256 == $runner_sha and
 	  .runner.parser_sha256 == "dd0372d385bbc0a84c6faedf67ee3596f4766205a125c44e33b9a91652bc2cd1" and
 	  .runner.qmp_vcpu_control_sha256 == "e59bc8ad5adb50ddf66652b28a424afd1efbd28a9501e786771d5fb1f8da147e" and
 	  .matrix.total_cells == 682 and .matrix.total_measured_pairs == 6820000 and
@@ -110,7 +125,7 @@ fi
 
 processes=$(container machine run -n domainlease-dev /usr/bin/ps -eo args= 2>/dev/null || true)
 activity=$(printf '%s\n' "$processes" |
-	grep -E '[r]un-p5a-r4-e4-arm64-timing-r4-in-machine|[r]un-sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement|[q]emu-system-aarch64|[m]ake -C /var/tmp/linux-cap-worktrees/p5a-r4-e4-arm64-measurement' |
+	grep -E '[r]un-p5a-r4-e4-arm64-timing.*-in-machine|[r]un-sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement|[q]emu-system-aarch64|[m]ake -C /var/tmp/linux-cap-worktrees/p5a-r4-e4-arm64-measurement' |
 	sed -n '1p')
 if [ -n "$activity" ]; then
 	printf 'running\n'
