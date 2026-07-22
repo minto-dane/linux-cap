@@ -11,6 +11,9 @@ EXPECTED_SOURCE_CLOSURE_R1_SHA=${EXPECTED_SOURCE_CLOSURE_R1_SHA:-5e3ff71d2fea01b
 EXPECTED_SOURCE_CLOSURE_R2_SHA=${EXPECTED_SOURCE_CLOSURE_R2_SHA:-bac2aca6649c40fdf21665a0f801be1f0751ef03c437d1b506f78ba77f04f720}
 EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA=${EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA:-767d2f9ab1bfb6e0c918c2ba0b51147ba79f236085e6985097b14e5a8da43d21}
 EXPECTED_RUNNER_SHA=${EXPECTED_RUNNER_SHA:-2fe52b6e9bfbc57ccca43c6e45fc3c18b15e196967822c34743b202480385e69}
+EXPECTED_R6_KUNIT_CLOSURE_R1_SHA=${EXPECTED_R6_KUNIT_CLOSURE_R1_SHA:-}
+EXPECTED_R6_KUNIT_CLOSURE_R2_SHA=${EXPECTED_R6_KUNIT_CLOSURE_R2_SHA:-}
+EXPECTED_R6_KUNIT_CLOSURE_NORMALIZED_SHA=${EXPECTED_R6_KUNIT_CLOSURE_NORMALIZED_SHA:-}
 JOB_DIR="$ROOT/build/long-jobs/$NAME"
 OUT_DIR="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement/$RUN_ID"
 RESULT="$OUT_DIR/result.json"
@@ -42,6 +45,9 @@ validate_complete_result()
 	  --arg closure_r1 "$EXPECTED_SOURCE_CLOSURE_R1_SHA" \
 	  --arg closure_r2 "$EXPECTED_SOURCE_CLOSURE_R2_SHA" \
 	  --arg closure_normalized "$EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA" \
+	  --arg r6_closure_r1 "$EXPECTED_R6_KUNIT_CLOSURE_R1_SHA" \
+	  --arg r6_closure_r2 "$EXPECTED_R6_KUNIT_CLOSURE_R2_SHA" \
+	  --arg r6_closure_normalized "$EXPECTED_R6_KUNIT_CLOSURE_NORMALIZED_SHA" \
 	  --arg runner_sha "$EXPECTED_RUNNER_SHA" '
 	  .schema_version == 1 and
 	  .id == "sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement-result-v1" and
@@ -53,6 +59,11 @@ validate_complete_result()
 	  .prerequisites.closure_r1_sha256 == $closure_r1 and
 	  .prerequisites.closure_r2_sha256 == $closure_r2 and
 	  .prerequisites.closure_normalized_sha256 == $closure_normalized and
+	  (($r6_closure_r1 == "" and $r6_closure_r2 == "" and $r6_closure_normalized == "") or
+	    (.prerequisites.r6_failure_closure_r1_sha256 == $r6_closure_r1 and
+	     .prerequisites.r6_failure_closure_r2_sha256 == $r6_closure_r2 and
+	     .prerequisites.r6_failure_closure_normalized_sha256 == $r6_closure_normalized and
+	     .prerequisites.r6_failure_independently_closed == true)) and
 	  .runner.sha256 == $runner_sha and
 	  .runner.parser_sha256 == "dd0372d385bbc0a84c6faedf67ee3596f4766205a125c44e33b9a91652bc2cd1" and
 	  .runner.qmp_vcpu_control_sha256 == "e59bc8ad5adb50ddf66652b28a424afd1efbd28a9501e786771d5fb1f8da147e" and

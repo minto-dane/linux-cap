@@ -19,6 +19,7 @@ R2_FAILURE_CLOSURE_RUNNER="$ROOT/capsched/capsched-models/validation/run-sched-e
 R3_STORAGE_CLOSURE_RUNNER="$ROOT/capsched/capsched-models/validation/run-sched-exec-lease-p5a-r4-e4-arm64-timing-r3-storage-failure-closure.sh"
 R4_KUNIT_CLOSURE_RUNNER="$ROOT/capsched/capsched-models/validation/run-sched-exec-lease-p5a-r4-e4-arm64-timing-r4-kunit-failure-closure.sh"
 R4_KUNIT_CLOSURE_TEST="$ROOT/capsched/capsched-models/validation/test-sched-exec-lease-p5a-r4-e4-arm64-timing-r4-kunit-failure-closure.sh"
+R6_KUNIT_CLOSURE_RUNNER="$ROOT/capsched/capsched-models/validation/run-sched-exec-lease-p5a-r4-e4-arm64-timing-r6-kunit-failure-closure.sh"
 SOURCE_CLOSURE_ROOT="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-source-e3-evidence-closure"
 SOURCE_CLOSURE_R1=${SOURCE_CLOSURE_R1:-"$SOURCE_CLOSURE_ROOT/20260720T-p5a-r4-e4-source-e3-final-closure-r1"}
 SOURCE_CLOSURE_R2=${SOURCE_CLOSURE_R2:-"$SOURCE_CLOSURE_ROOT/20260720T-p5a-r4-e4-source-e3-final-closure-r2"}
@@ -47,6 +48,13 @@ EXPECTED_SOURCE_CLOSURE_R2_SHA=${EXPECTED_SOURCE_CLOSURE_R2_SHA:-bac2aca6649c40f
 EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA=${EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA:-767d2f9ab1bfb6e0c918c2ba0b51147ba79f236085e6985097b14e5a8da43d21}
 EXPECTED_CAPACITY_RESULT_SHA=${EXPECTED_CAPACITY_RESULT_SHA:-457fb3a7a5f00c0ea40b53af78d09d9f95021678b7003fbd02ef061ca2043c4c}
 EXPECTED_CANDIDATE_COMMIT=${EXPECTED_CANDIDATE_COMMIT:-5857720dedc49f89d2367442f8fdb1a806ffa1cc}
+EXPECTED_CANDIDATE_BRANCH=${EXPECTED_CANDIDATE_BRANCH:-codex/p5a-r4-e4-local-quantum-measurement}
+R6_KUNIT_CLOSURE_R1=${R6_KUNIT_CLOSURE_R1:-}
+R6_KUNIT_CLOSURE_R2=${R6_KUNIT_CLOSURE_R2:-}
+EXPECTED_R6_KUNIT_CLOSURE_RUNNER_SHA=${EXPECTED_R6_KUNIT_CLOSURE_RUNNER_SHA:-}
+EXPECTED_R6_KUNIT_CLOSURE_R1_SHA=${EXPECTED_R6_KUNIT_CLOSURE_R1_SHA:-}
+EXPECTED_R6_KUNIT_CLOSURE_R2_SHA=${EXPECTED_R6_KUNIT_CLOSURE_R2_SHA:-}
+EXPECTED_R6_KUNIT_CLOSURE_NORMALIZED_SHA=${EXPECTED_R6_KUNIT_CLOSURE_NORMALIZED_SHA:-}
 MIN_VM_CPUS=${MIN_VM_CPUS:-2}
 PRIOR_INTERRUPTION_RESULT=${PRIOR_INTERRUPTION_RESULT:-}
 EXPECTED_PRIOR_INTERRUPTION_SHA=${EXPECTED_PRIOR_INTERRUPTION_SHA:-}
@@ -87,7 +95,7 @@ for script in "$PROBE" "$WRAPPER" "$RUNNER" "$QMP_CONTROL" "$QMP_TEST" \
 	"$PARSER" "$PARSER_TEST" "$SOURCE_CLOSURE_RUNNER" \
 	"$SOURCE_CLOSURE_TEST" "$R2_FAILURE_CLOSURE_RUNNER" \
 	"$R3_STORAGE_CLOSURE_RUNNER" "$R4_KUNIT_CLOSURE_RUNNER" \
-	"$R4_KUNIT_CLOSURE_TEST"; do
+	"$R4_KUNIT_CLOSURE_TEST" "$R6_KUNIT_CLOSURE_RUNNER"; do
 	if [ ! -f "$script" ] || [ ! -x "$script" ]; then
 		die "script is not executable: $script"
 	fi
@@ -159,6 +167,27 @@ done
 cmp "$R4_KUNIT_CLOSURE_R1/result.normalized.json" "$R4_KUNIT_CLOSURE_R2/result.normalized.json" >/dev/null || die 'r4 KUnit closure decisions differ'
 [ -z "$(find "$R4_KUNIT_CLOSURE_R1/inputs" "$R4_KUNIT_CLOSURE_R2/inputs" -type f -perm -222 -print -quit)" ] || die 'r4 KUnit closure inputs became writable'
 
+if [ -n "$R6_KUNIT_CLOSURE_R1" ] || [ -n "$R6_KUNIT_CLOSURE_R2" ] ||
+	[ -n "$EXPECTED_R6_KUNIT_CLOSURE_RUNNER_SHA" ] ||
+	[ -n "$EXPECTED_R6_KUNIT_CLOSURE_R1_SHA" ] ||
+	[ -n "$EXPECTED_R6_KUNIT_CLOSURE_R2_SHA" ] ||
+	[ -n "$EXPECTED_R6_KUNIT_CLOSURE_NORMALIZED_SHA" ]; then
+	for required in "$R6_KUNIT_CLOSURE_R1" "$R6_KUNIT_CLOSURE_R2" \
+		"$EXPECTED_R6_KUNIT_CLOSURE_RUNNER_SHA" "$EXPECTED_R6_KUNIT_CLOSURE_R1_SHA" \
+		"$EXPECTED_R6_KUNIT_CLOSURE_R2_SHA" "$EXPECTED_R6_KUNIT_CLOSURE_NORMALIZED_SHA"; do
+		[ -n "$required" ] || die 'incomplete r6 KUnit closure binding'
+	done
+	[ "$(file_sha "$R6_KUNIT_CLOSURE_RUNNER")" = "$EXPECTED_R6_KUNIT_CLOSURE_RUNNER_SHA" ] || die 'r6 KUnit closure runner changed'
+	[ "$(file_sha "$R6_KUNIT_CLOSURE_R1/result.json")" = "$EXPECTED_R6_KUNIT_CLOSURE_R1_SHA" ] || die 'r6 KUnit closure r1 changed'
+	[ "$(file_sha "$R6_KUNIT_CLOSURE_R2/result.json")" = "$EXPECTED_R6_KUNIT_CLOSURE_R2_SHA" ] || die 'r6 KUnit closure r2 changed'
+	for closure in "$R6_KUNIT_CLOSURE_R1" "$R6_KUNIT_CLOSURE_R2"; do
+		[ "$(file_sha "$closure/result.normalized.json")" = "$EXPECTED_R6_KUNIT_CLOSURE_NORMALIZED_SHA" ] || die 'r6 KUnit normalized decision changed'
+		jq -e '.status == "passed_independent_arm64_timing_r6_kunit_failure_closure" and .source_result_sha256 == "28bd8b4cc8561a1b01a4fdcbbd3d584427ce5c7cf4b8bef55085745fce5f0c53" and .failure.stage == "evidence_validation" and .failure.recovery.setup_return == -22 and .failure.offline.integrity_errors == 205120 and .guest.result_rows == 538 and .guest.summary_rows == 6 and .guest.partial_values_receive_threshold_credit == false and .architecture_measurement_valid == false and .corrected_source_and_fresh_full_regression_required == true and .x86_64_measurement_may_start == false' "$closure/result.json" >/dev/null || die 'r6 KUnit closure semantics changed'
+	done
+	cmp "$R6_KUNIT_CLOSURE_R1/result.normalized.json" "$R6_KUNIT_CLOSURE_R2/result.normalized.json" >/dev/null || die 'r6 KUnit closure decisions differ'
+	[ -z "$(find "$R6_KUNIT_CLOSURE_R1/inputs" "$R6_KUNIT_CLOSURE_R2/inputs" -type f -perm -222 -print -quit)" ] || die 'r6 KUnit closure inputs became writable'
+fi
+
 if [ -n "$PRIOR_INTERRUPTION_RESULT" ] || [ -n "$EXPECTED_PRIOR_INTERRUPTION_SHA" ]; then
 	if [ -z "$PRIOR_INTERRUPTION_RESULT" ] || [ -z "$EXPECTED_PRIOR_INTERRUPTION_SHA" ]; then
 		die 'prior interruption path and hash must be supplied together'
@@ -187,8 +216,8 @@ root_head=$(git -C "$ROOT" rev-parse HEAD)
 [ "$(git -C "$ROOT/capsched" rev-parse refs/remotes/origin/codex/r4-e3-source)" = "$CAPSCHED_COMMIT" ] || die 'capsched commit is not pushed'
 [ "$(git -C "$ROOT/linux" rev-parse HEAD)" = 5e1ca3037e34823d1ba0cdd1dc04161fac170280 ] || die 'primary Linux changed'
 [ "$(git -C "$ROOT/linux-patches" rev-parse HEAD)" = 16bb080da472ffabbbafd2698073eca633fb0602 ] || die 'patch queue changed'
-[ "$(git -C "$ROOT/linux" rev-parse refs/heads/codex/p5a-r4-e4-local-quantum-measurement)" = "$EXPECTED_CANDIDATE_COMMIT" ] || die 'local E4 candidate moved'
-[ "$(git -C "$ROOT/linux" rev-parse refs/remotes/fork/codex/p5a-r4-e4-local-quantum-measurement)" = "$EXPECTED_CANDIDATE_COMMIT" ] || die 'pushed E4 candidate moved'
+[ "$(git -C "$ROOT/linux" rev-parse "refs/heads/$EXPECTED_CANDIDATE_BRANCH")" = "$EXPECTED_CANDIDATE_COMMIT" ] || die 'local E4 candidate moved'
+[ "$(git -C "$ROOT/linux" rev-parse "refs/remotes/fork/$EXPECTED_CANDIDATE_BRANCH")" = "$EXPECTED_CANDIDATE_COMMIT" ] || die 'pushed E4 candidate moved'
 [ -z "$(git -C "$ROOT" status --porcelain --untracked-files=no)" ] || die 'superproject tracked state is dirty'
 [ -z "$(git -C "$ROOT/capsched" status --porcelain)" ] || die 'capsched is dirty'
 [ -z "$(git -C "$ROOT/linux" status --porcelain --untracked-files=no)" ] || die 'primary Linux is dirty'
@@ -236,7 +265,7 @@ container machine run -n domainlease-dev --workdir "$ROOT" "$QMP_TEST" > "$JOB_D
 container machine run -n domainlease-dev --workdir "$ROOT" "$R4_KUNIT_CLOSURE_TEST" > "$JOB_DIR/r4-kunit-closure-preflight.log"
 
 if [ "$PREFLIGHT_ONLY" = 1 ]; then
-	printf 'preflight passed: pushed commits, exact source/r2/r3/r4 closures, paused-QMP control, parser, smoke, capacity control, trim, CPU, 32GiB host, 16GiB VM, and clean paths are %s launch-ready\n' "$NAME"
+	printf 'preflight passed: pushed commits, exact source/r2/r3/r4/r6 closures, paused-QMP control, parser, smoke, capacity control, trim, CPU, 32GiB host, 16GiB VM, and clean paths are %s launch-ready\n' "$NAME"
 	exit 0
 fi
 
