@@ -7,6 +7,7 @@ RUN_ID=${RUN_ID:-20260719T-p5a-r4-e4-source-e3-regression-r3}
 EXPECTED_CANDIDATE_COMMIT=${EXPECTED_CANDIDATE_COMMIT:-9e4cb44fd1a1f998fcc288df87dad60505e8bf18}
 EXPECTED_CANDIDATE_TREE=${EXPECTED_CANDIDATE_TREE:-e6feb28a29fc8c37bc46af0fbf37de30f3401a4f}
 EXPECTED_CANDIDATE_DIFF_SHA=${EXPECTED_CANDIDATE_DIFF_SHA:-bb115b371cd18551b93c09ae9b3d0cf458e70c9964927ff08d1bd3f586dd4cd2}
+EXPECTED_R7_CORRECTIONS=${EXPECTED_R7_CORRECTIONS:-0}
 JOB_DIR="$ROOT/build/long-jobs/$NAME"
 OUT_DIR="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-source-and-e3-regression/$RUN_ID"
 RESULT="$OUT_DIR/result.json"
@@ -26,14 +27,21 @@ validate_result()
 {
 	local expected
 
+	case "$EXPECTED_R7_CORRECTIONS" in
+		0|1) ;;
+		*) return 1 ;;
+	esac
 	[ -s "$OUT_DIR/result.sha256" ] || return 1
 	expected=$(awk 'NF {print $1; exit}' "$OUT_DIR/result.sha256")
 	[ "$expected" = "$(sha256_file "$RESULT")" ] || return 1
-	jq -e --arg candidate "$EXPECTED_CANDIDATE_COMMIT" '
+	jq -e --arg candidate "$EXPECTED_CANDIDATE_COMMIT" \
+		--argjson r7 "$EXPECTED_R7_CORRECTIONS" '
 	  .status == "passed_source_and_six_profile_e3_regression_awaiting_independent_closure" and
 	  .candidate_commit == $candidate and
 	  .fresh_source_objects == 6 and .e3_profiles == 6 and
 	  .e3_cases_passed == 216 and .e3_receipts == 216 and
+	  ($r7 == 0 or (.e3_handoff_race_strengthened == true and
+	    .e4_offline_oracle_corrected == true)) and
 	  .vcpu_migration_observation_enforced == true and
 	  .irq_preempt_state_recorded == true and
 	  .independent_closure_required == true and
@@ -48,13 +56,18 @@ validate_result()
 	[ "$(sha256_file "$REGRESSION_RESULT")" = "$(jq -r '.e3_regression_result_sha256' "$RESULT")" ] || return 1
 	jq -e --arg candidate "$EXPECTED_CANDIDATE_COMMIT" \
 		--arg tree "$EXPECTED_CANDIDATE_TREE" \
-		--arg diff_sha "$EXPECTED_CANDIDATE_DIFF_SHA" '
+		--arg diff_sha "$EXPECTED_CANDIDATE_DIFF_SHA" \
+		--argjson r7 "$EXPECTED_R7_CORRECTIONS" '
 	  .status == "passed_source_and_object_gate_awaiting_six_profile_e3_regression" and
 	  .candidate_commit == $candidate and
 	  .candidate_tree == $tree and
 	  .candidate_diff_sha256 == $diff_sha and
 	  .fresh_objects == 6 and .w1_compiler_diagnostics == 0 and
-	  .disabled_e4_artifacts == 0 and .e3_cases_byte_preserved == 36 and
+	  .disabled_e4_artifacts == 0 and
+	  (($r7 == 0 and .e3_cases_byte_preserved == 36) or
+	    ($r7 == 1 and .e3_case_manifest_preserved == 36 and
+	      .e3_handoff_race_strengthened == true and
+	      .e4_offline_oracle_corrected == true)) and
 	  .measurement_task_migration_disabled == true and
 	  .vcpu_migration_observation_enforced == true and
 	  .irq_preempt_state_recorded == true and

@@ -28,6 +28,7 @@ EXPECTED_ROOT_COMMIT=${EXPECTED_ROOT_COMMIT:-38b533ba2d704df84c902d393abb25198b9
 EXPECTED_CAPSCHED_COMMIT=${EXPECTED_CAPSCHED_COMMIT:-0dc0976f8ffbf8c1398975ecdbac9627181e0c39}
 EXPECTED_CANDIDATE_COMMIT=${EXPECTED_CANDIDATE_COMMIT:-9e4cb44fd1a1f998fcc288df87dad60505e8bf18}
 EXPECTED_CANDIDATE_TREE=${EXPECTED_CANDIDATE_TREE:-e6feb28a29fc8c37bc46af0fbf37de30f3401a4f}
+EXPECTED_CANDIDATE_BRANCH=${EXPECTED_CANDIDATE_BRANCH:-codex/p5a-r4-e4-local-quantum-measurement}
 
 case "${1:-}" in
 	'') ;;
@@ -73,12 +74,14 @@ fi
 [ "$(shasum -a 256 "$SOURCE_RUNNER" | awk '{print $1}')" = "$EXPECTED_SOURCE_RUNNER_SHA" ] || die 'source runner hash changed'
 [ "$(shasum -a 256 "$REGRESSION_RUNNER" | awk '{print $1}')" = "$EXPECTED_REGRESSION_RUNNER_SHA" ] || die 'regression runner hash changed'
 [ "$(shasum -a 256 "$COMBINED_RUNNER" | awk '{print $1}')" = "$EXPECTED_COMBINED_RUNNER_SHA" ] || die 'combined runner hash changed'
-[ "$(git -C "$ROOT" rev-parse HEAD)" = "$EXPECTED_ROOT_COMMIT" ] || die 'superproject commit changed'
+if [ "$EXPECTED_ROOT_COMMIT" != HEAD ]; then
+	[ "$(git -C "$ROOT" rev-parse HEAD)" = "$EXPECTED_ROOT_COMMIT" ] || die 'superproject commit changed'
+fi
 [ "$(git -C "$ROOT/capsched" rev-parse HEAD)" = "$EXPECTED_CAPSCHED_COMMIT" ] || die 'capsched commit changed'
 [ "$(git -C "$ROOT/linux" rev-parse HEAD)" = 5e1ca3037e34823d1ba0cdd1dc04161fac170280 ] || die 'primary Linux changed'
 [ "$(git -C "$ROOT/linux-patches" rev-parse HEAD)" = 16bb080da472ffabbbafd2698073eca633fb0602 ] || die 'patch queue changed'
-[ "$(git -C "$ROOT/linux" rev-parse refs/heads/codex/p5a-r4-e4-local-quantum-measurement)" = "$EXPECTED_CANDIDATE_COMMIT" ] || die 'local E4 branch changed'
-[ "$(git -C "$ROOT/linux" rev-parse refs/remotes/fork/codex/p5a-r4-e4-local-quantum-measurement)" = "$EXPECTED_CANDIDATE_COMMIT" ] || die 'fork E4 branch changed'
+[ "$(git -C "$ROOT/linux" rev-parse "refs/heads/$EXPECTED_CANDIDATE_BRANCH")" = "$EXPECTED_CANDIDATE_COMMIT" ] || die 'local E4 branch changed'
+[ "$(git -C "$ROOT/linux" rev-parse "refs/remotes/fork/$EXPECTED_CANDIDATE_BRANCH")" = "$EXPECTED_CANDIDATE_COMMIT" ] || die 'fork E4 branch changed'
 [ "$(git -C "$ROOT/linux" rev-parse "$EXPECTED_CANDIDATE_COMMIT^")" = da9ce9159b3450c28c8faf8dceac671fb7bfeba2 ] || die 'E4 parent changed'
 [ "$(git -C "$ROOT/linux" rev-parse "$EXPECTED_CANDIDATE_COMMIT^{tree}")" = "$EXPECTED_CANDIDATE_TREE" ] || die 'E4 tree changed'
 [ -z "$(git -C "$ROOT" status --porcelain --untracked-files=no)" ] || die 'superproject is dirty'
