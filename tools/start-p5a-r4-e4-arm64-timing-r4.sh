@@ -48,6 +48,8 @@ EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA=${EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA:
 EXPECTED_CAPACITY_RESULT_SHA=${EXPECTED_CAPACITY_RESULT_SHA:-457fb3a7a5f00c0ea40b53af78d09d9f95021678b7003fbd02ef061ca2043c4c}
 EXPECTED_CANDIDATE_COMMIT=${EXPECTED_CANDIDATE_COMMIT:-5857720dedc49f89d2367442f8fdb1a806ffa1cc}
 MIN_VM_CPUS=${MIN_VM_CPUS:-2}
+PRIOR_INTERRUPTION_RESULT=${PRIOR_INTERRUPTION_RESULT:-}
+EXPECTED_PRIOR_INTERRUPTION_SHA=${EXPECTED_PRIOR_INTERRUPTION_SHA:-}
 HOST_MIN_KIB=33554432
 VM_MIN_KIB=16777216
 WATCH=0
@@ -156,6 +158,26 @@ for closure in "$R4_KUNIT_CLOSURE_R1" "$R4_KUNIT_CLOSURE_R2"; do
 done
 cmp "$R4_KUNIT_CLOSURE_R1/result.normalized.json" "$R4_KUNIT_CLOSURE_R2/result.normalized.json" >/dev/null || die 'r4 KUnit closure decisions differ'
 [ -z "$(find "$R4_KUNIT_CLOSURE_R1/inputs" "$R4_KUNIT_CLOSURE_R2/inputs" -type f -perm -222 -print -quit)" ] || die 'r4 KUnit closure inputs became writable'
+
+if [ -n "$PRIOR_INTERRUPTION_RESULT" ] || [ -n "$EXPECTED_PRIOR_INTERRUPTION_SHA" ]; then
+	if [ -z "$PRIOR_INTERRUPTION_RESULT" ] || [ -z "$EXPECTED_PRIOR_INTERRUPTION_SHA" ]; then
+		die 'prior interruption path and hash must be supplied together'
+	fi
+	[ "$(file_sha "$PRIOR_INTERRUPTION_RESULT")" = "$EXPECTED_PRIOR_INTERRUPTION_SHA" ] ||
+		die 'prior interruption result changed'
+	jq -e '
+	  .status == "harness_failed" and .failure.stage == "host_restart" and
+	  .source.commit == "82d91805f8e145d2403057f656e590e4bcae12f1" and
+	  .runner.sha256 == "cd2f210304fae4be4586bb9bcf750e959513ff59e96796ad2a6b64a8a1a727db" and
+	  .matrix.total_cells == 682 and .matrix.result_rows == 166 and
+	  .matrix.summary_rows == 0 and .partial_rows_receive_evidence_credit == false and
+	  .architecture_measurement_valid == false and
+	  .x86_64_measurement_may_start == false and
+	  .run_owned_build_scratch_retired == true and
+	  .run_owned_worktree_retired == true and
+	  .failure_seal_reserve_released == true
+	' "$PRIOR_INTERRUPTION_RESULT" >/dev/null || die 'prior interruption semantics changed'
+fi
 
 [ "$(git -C "$ROOT" branch --show-current)" = codex/r4-e3-source ] || die 'superproject branch changed'
 root_head=$(git -C "$ROOT" rev-parse HEAD)
