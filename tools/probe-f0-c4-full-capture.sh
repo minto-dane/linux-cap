@@ -85,6 +85,13 @@ printf 'external_memory_usage=%s\n' \
 	"$(vm /usr/bin/du -sh "$work" 2>/dev/null || printf not-created)"
 printf 'evidence_usage=%s\n' \
 	"$(vm /usr/bin/du -sh "$evidence" 2>/dev/null || printf not-published)"
+if [[ $state == running ]]; then
+	printf '%s\n' '--- exact exploration runtime ---'
+	container machine run -i --root -n domainlease-dev \
+		/usr/bin/python3 - "$run_id" \
+		< "$ROOT/tools/f0-c4-vm-runtime-metrics.py" 2>/dev/null \
+		|| printf 'runtime_metrics=unavailable\n'
+fi
 printf '%s\n' '--- vm journal tail ---'
 vm /usr/bin/journalctl -u "$capture_unit" -u "$launcher_unit" \
 	-n 8 --no-pager 2>/dev/null || true
