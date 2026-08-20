@@ -332,9 +332,21 @@ wait_job()
 {
   local name=$1
   local interval=${2:-10}
-  local dir pid
+  local dir pid mode
   dir=$(job_dir "$name")
   test -d "$dir" || die "unknown job: $name"
+  mode=$(cat "$dir/mode" 2>/dev/null || printf unknown)
+  if [ "$mode" = external ]; then
+    while :; do
+      run_probe "$dir"
+      case "$PROBE_STATE" in
+        running|unknown) sleep "$interval" ;;
+        *) break ;;
+      esac
+    done
+    status_job "$name"
+    return 0
+  fi
   pid=$(read_pid "$dir")
   while is_alive "$pid"; do
     sleep "$interval"
