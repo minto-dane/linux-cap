@@ -1,10 +1,11 @@
 # DomainLease-Linux Superproject
 
-Private superproject for DomainLease-Linux, formerly CapSched-Linux during the
-private modeling phase.
+Public superproject for DomainLease-Linux, formerly CapSched-Linux during the
+early modeling phase.
 
-This repository ties together the private project-control/model repository and
-the private Linux patch queue.
+This repository pins the public project-control/model repository and public
+Linux patch queue as submodules so a fresh clone resolves one reviewed
+checkpoint.
 
 ## Submodules
 
@@ -14,7 +15,7 @@ capsched/
   documents.
 
 linux-patches/
-  Upstream Linux base metadata plus the private DomainLease Linux patch series
+  Upstream Linux base metadata plus the DomainLease Linux patch series
   and a recreate script.
 ```
 
@@ -36,6 +37,7 @@ The active Linux tree can be recreated from `linux-patches/`:
 ./linux-patches/scripts/recreate-capsched-linux-l0.sh ./linux
 ```
 
-The full public Linux history is not vendored into this private GitHub
-superproject. The private content is the DomainLease state/model work and the
-DomainLease Linux patch queue.
+The full upstream Linux history is not vendored into this GitHub superproject.
+The repositories are intentionally public. Do not commit credentials, private
+keys, tokens, or private operational data. Model and prototype publication is
+not evidence of F0/R11/K0 acceptance or hypervisor-grade protection.
