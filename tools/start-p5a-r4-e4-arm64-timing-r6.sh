@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+SOURCE_CLOSURE_ROOT="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-source-e3-evidence-closure"
+MEASUREMENT_ROOT="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement"
+
+export NAME=p5a-r4-e4-arm64-timing-r6
+export RUN_ID=20260722T-p5a-r4-e4-arm64-timing-r6
+export SOURCE_CLOSURE_R1="$SOURCE_CLOSURE_ROOT/20260722T-p5a-r4-e4-coalesced-owner-source-e3-closure-r1"
+export SOURCE_CLOSURE_R2="$SOURCE_CLOSURE_ROOT/20260722T-p5a-r4-e4-coalesced-owner-source-e3-closure-r2"
+export CONFIG_SMOKE="$MEASUREMENT_ROOT/20260722T-p5a-r4-e4-arm64-timing-config-smoke-r9"
+export CAPACITY_NEGATIVE="$MEASUREMENT_ROOT/20260722T-p5a-r4-e4-host-capacity-negative-r3"
+export PRIOR_INTERRUPTION_RESULT="$MEASUREMENT_ROOT/20260722T-p5a-r4-e4-arm64-timing-r5/result.json"
+export CAPSCHED_COMMIT=b0f5781f0fc5330662934d8948b0b6ab4c2182c9
+export EXPECTED_RUNNER_SHA=cd2f210304fae4be4586bb9bcf750e959513ff59e96796ad2a6b64a8a1a727db
+export EXPECTED_SOURCE_CLOSURE_RUNNER_SHA=dddc11a3d5fe791b4427a4df72d27f776c332d778b16192fca2d046b575280f8
+export EXPECTED_SOURCE_CLOSURE_TEST_SHA=34f69ea0b7b0b1dd965330546c8a2f2863e2b567c5db7aa1ec4af7f68299268c
+export EXPECTED_SOURCE_CLOSURE_R1_SHA=313651a8eaf26daf8d29eb7634c82222f44bdd2d1b6cee840702324bbad2c57c
+export EXPECTED_SOURCE_CLOSURE_R2_SHA=10dd9320e102d452d57e08002e1d930537e669f28add02ef8e851d3ec7577d4a
+export EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA=7536970108657a6cba06debc895ecc3f088818bc6aa19a4f1fdbfdbe50adb449
+export EXPECTED_CAPACITY_RESULT_SHA=5000e8ef3a628a8d6a22e6dba45ca72654f4c060911a4b1fb0027da6a170bb39
+export EXPECTED_CANDIDATE_COMMIT=82d91805f8e145d2403057f656e590e4bcae12f1
+export EXPECTED_PRIOR_INTERRUPTION_SHA=d7fb9ec3343c18485a9bd03adbc1e7200c5c3404ec517464c3770b3924b268d3
+export MIN_VM_CPUS=6
+
+exec "$ROOT/tools/start-p5a-r4-e4-arm64-timing-r4.sh" "$@"

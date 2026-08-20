@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+SOURCE_CLOSURE_ROOT="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-source-e3-evidence-closure"
+R6_CLOSURE_ROOT="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-timing-r6-kunit-failure-closure"
+MEASUREMENT_ROOT="$ROOT/build/source-check/sched-exec-lease-p5a-r4-e4-arm64-local-quantum-measurement"
+
+export NAME=p5a-r4-e4-arm64-timing-r7
+export RUN_ID=20260723T-p5a-r4-e4-arm64-timing-r7
+export SOURCE_CLOSURE_R1="$SOURCE_CLOSURE_ROOT/20260723T-p5a-r4-e4-owner-oracle-correction-source-e3-closure-r1"
+export SOURCE_CLOSURE_R2="$SOURCE_CLOSURE_ROOT/20260723T-p5a-r4-e4-owner-oracle-correction-source-e3-closure-r2"
+export R6_KUNIT_CLOSURE_R1="$R6_CLOSURE_ROOT/20260723T-p5a-r4-e4-arm64-timing-r6-closure-r1"
+export R6_KUNIT_CLOSURE_R2="$R6_CLOSURE_ROOT/20260723T-p5a-r4-e4-arm64-timing-r6-closure-r2"
+export CONFIG_SMOKE="$MEASUREMENT_ROOT/20260723T-p5a-r4-e4-arm64-timing-config-smoke-r10"
+export CAPACITY_NEGATIVE="$MEASUREMENT_ROOT/20260723T-p5a-r4-e4-host-capacity-negative-r4"
+export CAPSCHED_COMMIT=7c8303c858bd55d32afb1b3f44a068c41bdd4760
+export EXPECTED_RUNNER_SHA=54e1ee16fdd55c57e306ecb582420455c6e088ac150c39b3f66c8432439a8a50
+export EXPECTED_SOURCE_CLOSURE_RUNNER_SHA=5a321628da8d53894bed76f0df590ba05ba4b92860405bccc6f8084399aeadfa
+export EXPECTED_SOURCE_CLOSURE_TEST_SHA=21d8678a44141dc415cc74c2baa4076dde8d4e962efc153a1874b426fe180134
+export EXPECTED_SOURCE_CLOSURE_R1_SHA=0224be91981b36a74ba0d3389c7e5a357a76bf7329bfb19de74c206d0bb4a3a4
+export EXPECTED_SOURCE_CLOSURE_R2_SHA=b2317a4d80a4b3cfbc5f1e7d140fe50d60b9f4b79d8fe18e214d49f04382e99b
+export EXPECTED_SOURCE_CLOSURE_NORMALIZED_SHA=f8e184c16c4fa5315532cb067d3b66dea3a21b277942d9728a2132384a3d4ba2
+export EXPECTED_R6_KUNIT_CLOSURE_RUNNER_SHA=929676aa6d7ce57a1581418c815b50b211dc18cb0d77ff53a83d14e938dbe19a
+export EXPECTED_R6_KUNIT_CLOSURE_R1_SHA=62fc4950c46a77d9c51a45d7c24fb0ad3b4cbb25b6288de5e4729bff36fe303d
+export EXPECTED_R6_KUNIT_CLOSURE_R2_SHA=6f1c2231ecaa9f069ed6b3759f74603a25be619de5d74215a4f79921f2162795
+export EXPECTED_R6_KUNIT_CLOSURE_NORMALIZED_SHA=1ed1c74331eb818ea355a6c8c3d7daa03362cc8d79c8e43a236d3b49757a3c3f
+export EXPECTED_CAPACITY_RESULT_SHA=3b2102412bff0371845c90d4e9ce589375ef8caef7c2cdda256a9a23071eec0c
+export EXPECTED_CANDIDATE_COMMIT=4077ba840f713979c29af64f405dbde39f845d93
+export EXPECTED_CANDIDATE_BRANCH=codex/p5a-r4-e4-local-quantum-measurement-r7
+export MIN_VM_CPUS=6
+
+exec "$ROOT/tools/start-p5a-r4-e4-arm64-timing-r4.sh" "$@"
